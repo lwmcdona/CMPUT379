@@ -1,4 +1,4 @@
-EXES = a1jobs a1mon 
+EXES = a1jobs a1mon a1
 
 all: $(EXES)
 
@@ -19,3 +19,19 @@ a1mon.o: a1mon.cpp
 
 a1jobs.o: a1jobs.cpp
 	g++ a1jobs.cpp -c
+
+a1: a1.o
+	g++ -g a1.o Command.o JobSpawner.o CommandFactory.o -o a1
+
+a1.o: a1.cpp JobSpawner.cpp Command.cpp
+	g++ -g a1.cpp CommandFactory.cpp Command.cpp JobSpawner.cpp -c
+
+CommandFactory.o: 
+	g++ CommandFactory.cpp -c
+
+Command.o:
+	g++ Command.cpp -c
+
+JobSpawner.o:
+	g++ JobSpawner.cpp -c 
+

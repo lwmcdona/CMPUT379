@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sys/resource.h> // for getrlimit and setrlimit
-#include <sys/times.h> // for times
-#include <unistd.h> // for fork, vfork, sleep, getpid
+#include <sys/times.h>    // for times
+#include <unistd.h>       // for fork, vfork, sleep, getpid
 #include <string>
 #include <signal.h>
 #include <stdlib.h> // atoi()
@@ -13,7 +13,8 @@
 
 using namespace std;
 
-struct admittedJob {
+struct admittedJob
+{
     int index;
     pid_t headPid;
     std::string command;
@@ -33,7 +34,8 @@ int parseInput(string runCommands[], string input)
         prevSpace = nextSpace;
         nextSpace = input.find(" ", prevSpace + 1);
     }
-    if (numArgs > 4) {
+    if (numArgs > 4)
+    {
         cout << "Too many arguments specified." << endl;
         return -1;
     }
@@ -45,10 +47,11 @@ int parseInput(string runCommands[], string input)
 // list all jobs in the job array
 void list(admittedJob jobs[], int numJobs)
 {
-    if(numJobs <= 0) {
+    if (numJobs <= 0)
+    {
         cout << "No jobs." << endl;
     }
-    for(int i = 0; i < numJobs; ++i) 
+    for (int i = 0; i < numJobs; ++i)
     {
         cout << jobs[i].index << ": (pid= " << jobs[i].headPid << ", cmd= " << jobs[i].command << ")" << endl;
     }
@@ -61,7 +64,7 @@ void run(string input, admittedJob jobs[], int &numJobs)
     if (numJobs >= MAXJOBS)
     {
         cout << "Process failed to run. Job cache is full." << endl;
-        return; 
+        return;
     }
 
     // parse the input into separate arguments to be passed to execlp()
@@ -69,7 +72,8 @@ void run(string input, admittedJob jobs[], int &numJobs)
     int numArgs = parseInput(runCommands, input);
 
     // nothing to run
-    if (numArgs == -1) {
+    if (numArgs == -1)
+    {
         return;
     }
 
@@ -81,30 +85,31 @@ void run(string input, admittedJob jobs[], int &numJobs)
         cout << "fork error" << endl;
     }
     else if (pid == 0) // child execution
-    {   
+    {
         int error;
         switch (numArgs)
         {
-            case 1:
-                error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), NULL);
-                break;
-            case 2:
-                error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), NULL);
-                break;
-            case 3:
-                error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), runCommands[2].c_str(), (char *)0);
-                break;
-            case 4:
-                error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), runCommands[2].c_str(), runCommands[3].c_str(), (char *)0);
-                break;
-            case 5:
-                error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), runCommands[2].c_str(), runCommands[3].c_str(), runCommands[4].c_str(), (char *)0);
-                break;
-            default:
-                cout << "Too many arguments to command: " << numArgs << endl;
+        case 1:
+            error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), NULL);
+            break;
+        case 2:
+            error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), NULL);
+            break;
+        case 3:
+            error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), runCommands[2].c_str(), (char *)0);
+            break;
+        case 4:
+            error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), runCommands[2].c_str(), runCommands[3].c_str(), (char *)0);
+            break;
+        case 5:
+            error = execlp(runCommands[0].c_str(), runCommands[0].c_str(), runCommands[1].c_str(), runCommands[2].c_str(), runCommands[3].c_str(), runCommands[4].c_str(), (char *)0);
+            break;
+        default:
+            cout << "Too many arguments to command: " << numArgs << endl;
         }
         // exit the child process on error
-        if (error == -1) {
+        if (error == -1)
+        {
             cout << "Process failed to run" << endl;
             exit(0);
         }
@@ -149,10 +154,10 @@ void terminate(string input, admittedJob jobs[])
 
 // terminates all jobs
 void exitFunction(admittedJob jobs[], int numJobs)
-{   
-    for(int index = 0; index < numJobs; ++index) 
+{
+    for (int index = 0; index < numJobs; ++index)
     {
-        if(!jobs[index].terminated) 
+        if (!jobs[index].terminated)
         {
             kill(jobs[index].headPid, SIGKILL);
             // wait for the job to get its user and system time
@@ -194,7 +199,8 @@ int main()
     // main loop
     // gets an input and parses it for a command
     // if it is a valid command takes the corresponding action
-    while(continueLoop) {
+    while (true)
+    {
         char str[100];
 
         cout << "a1jobs[" << pid << "]: ";
@@ -202,21 +208,26 @@ int main()
 
         int endOfFirstWord = input.find(" ");
         string command;
-        if (endOfFirstWord != std::string::npos) {
+        if (endOfFirstWord != std::string::npos)
+        {
             command = input.substr(0, endOfFirstWord);
-            input = input.substr(endOfFirstWord+1, input.length() - endOfFirstWord+1);
+            input = input.substr(endOfFirstWord + 1, input.length() - endOfFirstWord + 1);
         }
-        else {
+        else
+        {
             command = input;
         }
 
-        if (command.compare("list") == 0) {
+        if (command.compare("list") == 0)
+        {
             list(jobs, numJobs);
         }
-        else if (command.compare("run") == 0) {
+        else if (command.compare("run") == 0)
+        {
             run(input, jobs, numJobs);
         }
-        else if (command.compare("suspend") == 0) {
+        else if (command.compare("suspend") == 0)
+        {
             suspend(input, jobs);
         }
         else if (command.compare("resume") == 0)
@@ -230,13 +241,14 @@ int main()
         else if (command.compare("exit") == 0)
         {
             exitFunction(jobs, numJobs);
-            continueLoop = false;
+            break;
         }
         else if (command.compare("quit") == 0)
         {
-            continueLoop = false;
+            break;
         }
-        else {
+        else
+        {
             cout << "Invalid command." << endl;
         }
     } // end while
@@ -248,12 +260,12 @@ int main()
     }
 
     static long clockTick = 0;
-    if ((clockTick = sysconf(_SC_CLK_TCK)) < 0) 
+    if ((clockTick = sysconf(_SC_CLK_TCK)) < 0)
     {
         cout << "sysconf error" << endl;
     }
 
-    cout << "  real:         " << ((endTime-startTime) / (double) clockTick) << endl;
+    cout << "  real:         " << ((endTime - startTime) / (double)clockTick) << endl;
     cout << "  user:         " << fixed << setprecision(2) << ((endCPUTime.tms_utime - startCPUTime.tms_utime) / (double)clockTick) << endl;
     cout << "  sys:          " << fixed << setprecision(2) << ((endCPUTime.tms_stime - startCPUTime.tms_stime) / (double)clockTick) << endl;
     cout << "  child user:   " << fixed << setprecision(2) << ((endCPUTime.tms_cutime - startCPUTime.tms_cutime) / (double)clockTick) << endl;
@@ -261,5 +273,3 @@ int main()
 
     return 0;
 } // end main
-
-
